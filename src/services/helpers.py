@@ -4,7 +4,7 @@ from entities.Carro import Carro
 
 
 def adicionar_carro_no_csv(carro: Carro):
-    df = pd.read_csv("../data/cars_data.csv", index_col=0)
+    df = pd.read_csv("../data/cars_data.csv")
 
     novo_carro = pd.DataFrame(
         [
@@ -27,4 +27,4 @@ def adicionar_carro_no_csv(carro: Carro):
     novo_carro.index = [df.index.max() + 1]
     df = pd.concat([df, novo_carro])
 
-    df.to_csv("../data/cars_data.csv", index=True)
+    df.to_csv("../data/cars_data.csv", index=False)

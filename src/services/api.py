@@ -10,7 +10,6 @@ from entities.Carro import Carro
 
 app = FastAPI()
 
-
 @app.post("/carros/adicionar")
 async def adicionar_carro(carro: Carro):
     """
@@ -52,8 +51,8 @@ async def adicionar_carro(carro: Carro):
     ```
     """
     adicionar_carro_no_csv(carro)
-
     return {"message": "Carro adicionado com sucesso!"}
+
 
 
 @app.get("/")

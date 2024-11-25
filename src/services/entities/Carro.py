@@ -8,8 +8,8 @@ class Carro(BaseModel):
     Litragem_do_Motor: float
     Modelo_do_Carro: str
     Tipo_de_Gasolina: str
-    Cidade_MPG: int
-    Rodovia_MPG: int
-    Combinado_MPG: int
-    Autonomia_Total_MPG: int
-    Galoes_por_Milhas: str
+    Cidade_MPG: float
+    Rodovia_MPG: float
+    Combinado_MPG: float
+    Autonomia_Total_MPG: float
+    Galoes_por_Milhas: float

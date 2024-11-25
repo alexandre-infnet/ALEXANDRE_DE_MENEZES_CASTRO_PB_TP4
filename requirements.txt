@@ -6,3 +6,8 @@ matplotlib==3.9.2
 wordcloud==1.9.4
 fastapi==0.115.5
 pydantic==2.10.1
+transformers==4.46.3
+tensorflow==2.18.0
+tf-keras==2.18.0
+torch==2.5.1
+uvicorn==0.32.1

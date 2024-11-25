@@ -114,7 +114,7 @@ class CarDataScraper:
         data = self.scrape_data()
         df = pd.DataFrame(data)
         df.index.name = "Índice"
-        df.to_csv(filename, index=True)
+        df.to_csv(filename, index=False)
         print(df)
 
 
