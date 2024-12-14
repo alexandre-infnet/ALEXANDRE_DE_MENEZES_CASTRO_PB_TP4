@@ -25,7 +25,9 @@ with st.form(key="add_car_form", clear_on_submit=False):
     with col2:
         modelo = st.text_input("Modelo do Carro")
     with col3:
-        tipo_gasolina = st.selectbox("Tipo de Gasolina", ["Premium Gasoline", "Regular Gasoline"])
+        tipo_gasolina = st.selectbox(
+            "Tipo de Gasolina", ["Premium Gasoline", "Regular Gasoline"]
+        )
 
     st.text("Consume")
     col1, col2, col3, col4, col5 = st.columns(5)

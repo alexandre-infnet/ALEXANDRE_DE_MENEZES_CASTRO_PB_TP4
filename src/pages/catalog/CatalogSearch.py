@@ -58,7 +58,9 @@ if st.sidebar.button(":material/search: Search"):
 
             st.text("Word Cloud")
             text = " ".join(df_carros["Modelo do Carro"])
-            wordcloud = WordCloud(width=800, height=400, background_color="white").generate(text)
+            wordcloud = WordCloud(
+                width=800, height=400, background_color="white"
+            ).generate(text)
 
             plt.figure(figsize=(10, 5))
             plt.imshow(wordcloud, interpolation="bilinear")

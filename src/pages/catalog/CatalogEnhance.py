@@ -10,7 +10,7 @@ st.download_button(
     label=":material/download: Download Diminished Data",
     data="src/data/cars_data.csv",
     file_name="cars_data.csv",
-    mime="text/csv"
+    mime="text/csv",
 )
 
 st.divider()
@@ -36,6 +36,7 @@ def load_car_data():
     else:
         st.error("Please, upload a CSV File.")
         return None
+
 
 st.subheader("Upload requirements")
 st.markdown("If you want to upload the data, it must follow the schema below:")
@@ -95,3 +96,4 @@ if car_enchanter:
 
     if enhanced_df is not None:
         st.success("Successfully uploaded")
+        st.dataframe(enhanced_df)
