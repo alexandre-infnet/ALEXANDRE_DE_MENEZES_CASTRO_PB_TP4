@@ -1,106 +1,83 @@
+import requests
 import streamlit as st
 import pandas as pd
-from transformers import pipeline
 
 
-# Carregar o modelo DistilGPT2 para geração de texto
-@st.cache_resource
-def load_model():
-    return pipeline("text-generation", model="distilgpt2")
+API_URL = "http://127.0.0.1:8000/processar_texto"
+
+data = pd.read_csv('src/data/enhanced.csv')
+
+st.title("Match!")
 
 
-model_pipeline = load_model()
-
-
-# Carregar o dataset
-@st.cache_data
-def load_data():
-    return pd.read_csv("src/data/enhanced.csv")
-
-
-data = load_data()
-
-# Configuração da interface do Streamlit
-st.title("Recomendador de Veículos")
-
-st.write(
-    """
-    Este sistema recomenda veículos com base nas suas preferências. 
-    Preencha o formulário abaixo e veja as opções personalizadas para você!
-    """
+marca = st.multiselect("Brand", options=data['Marca do Carro'].unique(), default=None)
+ano = st.multiselect("Year", options=data['Ano do Carro'].unique(), default=None)
+faixa_preco_min, faixa_preco_max = st.slider(
+    "Price range (USD)",
+    min_value=float(data['Faixa de Preço (USD)'].min()),
+    max_value=float(data['Faixa de Preço (USD)'].max()),
+    value=(float(data['Faixa de Preço (USD)'].min()), float(data['Faixa de Preço (USD)'].max()))
 )
+categoria = st.multiselect("Category", options=data['Categoria do Carro'].unique(), default=None)
+tracao = st.multiselect("Traction type", options=data['Tipo de Tração'].unique(), default=None)
+transmissao = st.multiselect("Transmission", options=data['Tipo de Transmissão'].unique(), default=None)
+assentos = st.multiselect("Seats", options=data['Número de Assentos'].unique(), default=None)
+combustivel = st.multiselect("Fuel type", options=data['Tipo de Gasolina'].unique(), default=None)
 
-# Formulário para entrada de dados
-with st.form("vehicle_form"):
-    faixa_preco = st.number_input(
-        "Faixa de preço desejada (USD):", min_value=1000, max_value=200000, step=500
-    )
-    categoria = st.selectbox(
-        "Categoria do Carro:", options=data["Categoria do Carro"].unique()
-    )
-    tipo_tracao = st.selectbox(
-        "Tipo de Tração:", options=data["Tipo de Tração"].unique()
-    )
-    transmissao = st.selectbox(
-        "Tipo de Transmissão:", options=data["Tipo de Transmissão"].unique()
-    )
-    num_assentos = st.slider("Número de Assentos:", min_value=2, max_value=7, value=5)
-    preferencia_economia = st.radio("Prefere um veículo econômico?", ["Sim", "Não"])
-    submit = st.form_submit_button("Enviar")
+if st.button("Match!"):
+    with st.spinner("Processing filters..."):
+        filtered_data = data.copy()
 
-# Processar e gerar recomendações
-if submit:
-    st.subheader("Processando suas preferências...")
-    user_preferences = {
-        "Faixa de Preço": faixa_preco,
-        "Categoria": categoria,
-        "Tipo de Tração": tipo_tracao,
-        "Transmissão": transmissao,
-        "Número de Assentos": num_assentos,
-        "Preferência por Economia": preferencia_economia,
-    }
+        if marca:
+            filtered_data = filtered_data[filtered_data['Marca do Carro'].isin(marca)]
+        if ano:
+            filtered_data = filtered_data[filtered_data['Ano do Carro'].isin(ano)]
+        filtered_data = filtered_data[
+            (filtered_data['Faixa de Preço (USD)'] >= faixa_preco_min) &
+            (filtered_data['Faixa de Preço (USD)'] <= faixa_preco_max)
+        ]
+        if categoria:
+            filtered_data = filtered_data[filtered_data['Categoria do Carro'].isin(categoria)]
+        if tracao:
+            filtered_data = filtered_data[filtered_data['Tipo de Tração'].isin(tracao)]
+        if transmissao:
+            filtered_data = filtered_data[filtered_data['Tipo de Transmissão'].isin(transmissao)]
+        if assentos:
+            filtered_data = filtered_data[filtered_data['Número de Assentos'].isin(assentos)]
+        if combustivel:
+            filtered_data = filtered_data[filtered_data['Tipo de Gasolina'].isin(combustivel)]
 
-    # Filtrar veículos no dataset com base nas preferências
-    filtered_data = data[
-        (data["Faixa de Preço (USD)"] <= faixa_preco)
-        & (data["Categoria do Carro"] == categoria)
-        & (data["Tipo de Tração"] == tipo_tracao)
-        & (data["Tipo de Transmissão"] == transmissao)
-        & (data["Número de Assentos"] == num_assentos)
-    ]
+        resultados = filtered_data.head(3)
 
-    if filtered_data.empty:
-        st.error("Nenhum veículo encontrado com as preferências fornecidas.")
-    else:
-        # Selecionar até 3 veículos para detalhamento
-        selected_vehicles = filtered_data.sample(n=min(3, len(filtered_data)))
-
-        recommendations = []
-        for _, vehicle in selected_vehicles.iterrows():
-            # Gerar descrição detalhada para cada veículo
-            input_text = (
-                f"Detalhe este veículo: {vehicle['Marca do Carro']} {vehicle['Modelo do Carro']} "
-                f"do ano {vehicle['Ano do Carro']}, categoria {vehicle['Categoria do Carro']}, "
-                f"com tração {vehicle['Tipo de Tração']} e transmissão {vehicle['Tipo de Transmissão']}. "
-                f"Econômico: {'Sim' if vehicle['Econômico'] else 'Não'}."
-            )
-            description = model_pipeline(
-                input_text,
-                max_length=100,
-                num_return_sequences=1,
-                do_sample=True,
-                top_k=50,
-                temperature=0.7,
-            )[0]["generated_text"]
-            recommendations.append(
+        if not resultados.empty:
+            payload = [
                 {
-                    "Veículo": f"{vehicle['Marca do Carro']} {vehicle['Modelo do Carro']} ({vehicle['Ano do Carro']})",
-                    "Descrição": description,
+                    "brand": row["Marca do Carro"],
+                    "model": row["Modelo do Carro"],
+                    "year": row["Ano do Carro"],
+                    "price": row["Faixa de Preço (USD)"],
+                    "category": row["Categoria do Carro"],
+                    "traction_type": row["Tipo de Tração"],
+                    "transmission": row["Tipo de Transmissão"],
+                    "seats": row["Número de Assentos"],
+                    "fuel_type": row["Tipo de Gasolina"],
+                    "city_mpg": row["Cidade (MPG)"],
+                    "highway_mpg": row["Rodovia (MPG)"],
+                    "combined_mpg": row["Combinado (MPG)"],
+                    "vehicle_size": row["Tamanho do Veículo"],
+                    "maintenance_ease": row["Facilidade de Manutenção"],
                 }
-            )
+                for _, row in resultados.iterrows()
+            ]
 
-        # Exibir as recomendações
-        st.subheader("Recomendações de Veículos:")
-        for i, rec in enumerate(recommendations, start=1):
-            st.write(f"**Opção {i}:** {rec['Veículo']}")
-            st.write(rec["Descrição"])
+            try:
+                response = requests.post(API_URL, json=payload)
+                response.raise_for_status()
+                response_data = response.json()
+
+                st.write(response_data.get("response"))
+
+            except requests.exceptions.RequestException as e:
+                st.error(f"Erro na requisição: {e}")
+        else:
+            st.write("Nenhum veículo encontrado com os filtros selecionados.")
