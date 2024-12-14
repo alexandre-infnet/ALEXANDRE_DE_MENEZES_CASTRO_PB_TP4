@@ -5,7 +5,9 @@ st.set_page_config(layout="wide")
 
 pages = st.navigation(
     {
-        "Home": [st.Page("pages/home/Home.py", title="AutoMatch", icon=":material/home:")],
+        "Home": [
+            st.Page("pages/home/Home.py", title="AutoMatch", icon=":material/home:")
+        ],
         "Catalog": [
             st.Page(
                 "pages/catalog/CatalogAdd.py",
@@ -23,7 +25,7 @@ pages = st.navigation(
                 icon=":material/arrow_upward:",
             ),
         ],
-        "Match!": [
+        "Match": [
             st.Page("pages/match/Match.py", title="Match", icon=":material/join:"),
         ],
     }
