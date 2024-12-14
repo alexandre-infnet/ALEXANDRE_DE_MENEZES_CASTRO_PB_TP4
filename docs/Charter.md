@@ -5,7 +5,7 @@ Data de Início:
 12/06/2024
 
 Data de Término:
-12/12/2024
+22/12/2024
 
 1. Resumo Executivo
 
@@ -19,7 +19,7 @@ Este projeto visa desenvolver uma aplicação web capaz de recomendar veículos 
 	•	Objetivos Específicos:
 	1.	Extrair dados de veículos da fueleconomy.gov através de web scraping.
 	2. 	Implementar uma página para o usuário enriquecer os dados.
-	2.	Implementar um modelo de machine learning para analisar as características dos veículos e as preferências dos usuários.
+	2.	Implementar um API do Gemini para retornar resumos detalhados de cada veículo recomendado.
 	3.	Desenvolver uma interface intuitiva usando Streamlit que permita aos usuários inserir suas preferências e visualizar as recomendações.
 	4.	Avaliar e ajustar o modelo para garantir alta precisão nas recomendações.
 	5.	Lançar a aplicação em um ambiente de produção e monitorar seu desempenho.
